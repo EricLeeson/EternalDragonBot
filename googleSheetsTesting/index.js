@@ -16,10 +16,13 @@ async function main() {
     // Reading Google Sheet from a specific range
     const data = await getSpreadsheet(googleSheetClient);
     const requests = [];
-    const copyPasteRequest = await getCopyPasteRequest(googleSheetClient, ['0', 0, 1, 0, 1], ['0', 1, 2, 1, 2]);
-    requests.push(copyPasteRequest);
-    await batchUpdate(googleSheetClient, requests);
-    console.log(data);
+    // const copyPasteRequest = getCopyPasteRequest(getGridRange('0', 0, 1, 0, 1), getGridRange('0', 1, 2, 1, 2));
+    // const updateDimensionPropertiesRequest = getResizeColumnRequest('0', 25, 100);
+    // const mergeCells = getMergeCells('0', 0, 1, 12, 17, 'MERGE_ALL');
+
+    // requests.push(mergeCells);
+    // await batchUpdate(googleSheetClient, requests);
+    // console.log(data);
 }
 
 async function getSpreadsheet(googleSheetClient) {
@@ -27,38 +30,52 @@ async function getSpreadsheet(googleSheetClient) {
         spreadsheetId: sheetId,
         range: `${tabName}`,
     });
-  
     return res.data.values;
 }
 
-async function getCopyPasteRequest(googleSheetClient, sourceArgs, destArgs) {
-    const [ sourceSheetId,
-            sourceStartRowIndex,    sourceEndRowIndex,
-            sourceStartColumnIndex, sourceEndColumnIndex ] = sourceArgs;
-    
-    const [ destSheetId,
-            destStartRowIndex,      destEndRowIndex,
-            destStartColumnIndex,   destEndColumnIndex ] = destArgs;
+function getCopyPasteRequest(source, destination) {
 
     const request = {
         copyPaste : {
-            source : {
-                sheetId : sourceSheetId,
-                startRowIndex : sourceStartRowIndex,
-                endRowIndex : sourceEndRowIndex,
-                startColumnIndex : sourceStartColumnIndex,
-                endColumnIndex : sourceEndColumnIndex
-            },
-            destination : {
-                sheetId : destSheetId,
-                startRowIndex : destStartRowIndex,
-                endRowIndex : destEndRowIndex,
-                startColumnIndex : destStartColumnIndex,
-                endColumnIndex : destEndColumnIndex
-            },
+            source,
+            destination,
         }
     };
-    console.log(request);
+
+    return request;
+}
+
+function getMergeCells(sheetId, startRowIndex, endRowIndex, startColumnIndex, endColumnIndex, mergeType) {
+    const range = getGridRange(sheetId, startRowIndex, endRowIndex, startColumnIndex, endColumnIndex) 
+    
+    const request = {
+        mergeCells : {
+            range,
+            mergeType
+        }
+    }
+
+    return request;
+}
+
+function getUpdateDimensionPropertiesRequest(sheetId, dimension, startIndex, endIndex, pixelSize) {
+    const range = getDimensionRange(sheetId, dimension, startIndex, endIndex);
+
+    const request = {
+        updateDimensionProperties : {
+            properties : {
+                pixelSize
+            },
+            fields : 'pixelSize',
+            range
+        }
+    };
+
+    return request;
+}
+
+async function getResizeColumnRequest(sheetId, index, pixelSize) { 
+    const request = await getUpdateDimensionPropertiesRequest(sheetId, 'COLUMNS', index, index + 1, pixelSize);
     return request;
 }
 
@@ -76,15 +93,67 @@ async function batchUpdate(googleSheetClient, requests) {
     }
 }
 
-async function _writeGoogleSheet(googleSheetClient, sheetId, tabName, range, data) {
-    await googleSheetClient.spreadsheets.values.append({
-        spreadsheetId: sheetId,
-        range: `${tabName}`,
-        valueInputOption: 'USER_ENTERED',
-        insertDataOption: 'INSERT_ROWS',
-        resource: {
-            "majorDimension": "ROWS",
-            "values": data
-        },
-    })
+function getGridRange(sheetId, startRowIndex, endRowIndex, startColumnIndex, endColumnIndex) {
+    const gridRange = {
+        sheetId,
+        startRowIndex,
+        endRowIndex,
+        startColumnIndex,
+        endColumnIndex
+    };
+
+    return gridRange;
+}
+
+function getDimensionRange(sheetId, dimension, startIndex, endIndex) {
+    const dimensionRange = {
+        sheetId,
+        dimension,
+        startIndex,
+        endIndex
+    };
+
+    return dimensionRange;
+}
+
+function getUpdateCellsRequest(rowData, range) {
+    const request = {
+        rows : [ rowData ],
+        fields : 'CellData.userEnteredValue.userEnteredFormat',
+        range
+    };
+
+    return request;
+}
+
+function getExtendedValue(stringValue) {
+    const extendedValue = {
+        stringValue
+    };
+
+    return extendedValue;
+}
+
+function getCellFormat(horizontalAlignment, verticalAlignment) {
+    const cellFormat = {
+        horizontalAlignment,
+        verticalAlignment
+    };
+    
+    return cellFormat;
+}
+
+function getRowData(...values) {
+    const rowData = {values};
+
+    return rowData;
+}
+
+function getCellData(userEnteredValue, userEnteredFormat) {
+    const cellData = {
+        userEnteredValue,
+        userEnteredFormat
+    };
+
+    return cellData;
 }
