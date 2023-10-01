@@ -1,8 +1,9 @@
 const { google } = require('googleapis');
 const { getGoogleSheetClient } = require('./googleAuth');
+const { underscore } = require('discord.js');
 
 const serviceAccountKeyFile = 'credentials.json';
-const sheetId = '107NedbR7ZPVWFQg5hln2c0zXqD-RjNoLfzZCKPXiP-E';
+spreadSheetId = '107NedbR7ZPVWFQg5hln2c0zXqD-RjNoLfzZCKPXiP-E';
 const tabName = 'Attendance Sheet';
 
 main().then( () => {
@@ -27,14 +28,14 @@ async function main() {
     // const range = getGridRange('0', 20, 21, 0, 6);
     // const updateCellsRequest = getUpdateCellsRequest(rowData, range);
     
-    const makeNewColumnRequest = createNewAttendanceColumn(data, '0');
-    requests.push(makeNewColumnRequest);
+    const makeNewColumnRequest = createNewAttendanceColumn(data, '0', 'October', '18', 'Land');
+    requests.push(...makeNewColumnRequest);
     await batchUpdate(googleSheetClient, requests);
 }
 
 async function getSpreadsheet(googleSheetClient) {
     const res = await googleSheetClient.spreadsheets.values.get({
-        spreadsheetId: sheetId,
+        spreadsheetId: '107NedbR7ZPVWFQg5hln2c0zXqD-RjNoLfzZCKPXiP-E',
         range: `${tabName}`,
     });
     return res.data.values;
@@ -88,10 +89,9 @@ async function getResizeColumnRequest(sheetId, index, pixelSize) {
 
 async function batchUpdate(googleSheetClient, requests) {
     const batchUpdateRequest = { requests };
-    const spreadsheetId = sheetId;
     try {
         const response = await googleSheetClient.spreadsheets.batchUpdate({
-            spreadsheetId,
+            spreadsheetId : '107NedbR7ZPVWFQg5hln2c0zXqD-RjNoLfzZCKPXiP-E',
             resource : batchUpdateRequest
         });
     } catch (error) {
@@ -123,10 +123,10 @@ function getDimensionRange(sheetId, dimension, startIndex, endIndex) {
     return dimensionRange;
 }
 
-function getUpdateCellsRequest(rowData, range) {
+function getUpdateCellsRequest(rows, range) {
     const request = {
         updateCells : {
-            rows : [ rowData ],
+            rows,
             fields : '*',
             range
         }
@@ -181,19 +181,75 @@ function cellToCellData(data, cellFormat) {
 }
 
 function createNewAttendanceColumn(data, sheetId, eventMonth, eventDate, practiceType) {
-    const sampleIndex = getIndex('SAMPLE', data);
+    const sampleIndex = getRowIndex('SAMPLE', data);
     const emptyRowIndex = data.length;
     const emptyColumnIndex = data[sampleIndex].length;
 
     const source = getGridRange(sheetId, sampleIndex, sampleIndex + 1, 2, 3);
     const destination = getGridRange(sheetId, 4, emptyRowIndex, emptyColumnIndex, emptyColumnIndex + 1);
+
+    const requests = [];
+    const copyPasteRequest = getCopyPasteRequest(source, destination);
+
+    const headerArray = []
+    const practiceHeader = practiceType[0];
+    if ( isSameMonth(data, eventMonth, emptyColumnIndex) ) {
+        const currentMonthColumn = getColumnIndex(eventMonth, data);
+        const mergeCellsRequest = getMergeCells(sheetId, 0, 1, currentMonthColumn, emptyColumnIndex + 1);
+        requests.push(mergeCellsRequest);
+    } else {
+        headerArray.push(eventMonth);
+    }
+    headerArray.push(eventDate, practiceHeader);
+
+    const updateCellsRequest = getUpdateHeadersRequest(sheetId, headerArray, emptyColumnIndex);
     
-    return getCopyPasteRequest(source, destination);
+    requests.push(copyPasteRequest);
+    requests.push(updateCellsRequest);
+
+    return requests;
 }
 
-function getIndex(name, values) {
-    for (let i = 0; i < values.length; i++) {
-        if (values[i][0] === name) return i;
+function getUpdateHeadersRequest(sheetId, headerArray, columnIndex) {
+    const startRowIndex = 3 - headerArray.length;
+    const cellFormat = getCellCentreFormat();
+    const rows = []
+    for (let i = 0; i < headerArray.length; i++) {
+        rows.push(getRowData(cellToCellData([headerArray[i]], cellFormat)));
+    }
+    const range = getGridRange(sheetId, startRowIndex, startRowIndex + headerArray.length, columnIndex, columnIndex + 1);
+    const request = getUpdateCellsRequest(rows, range);
+    console.log(request);
+    console.log(rows);
+    return request;
+}
+
+function getRowIndex(name, values) {
+    for (let j = 0; j < values[0].length; j++) {
+        for (let i = 0; i < values.length; i++) {
+            if (values[i][j] === name) return i;
+        }
     }
     return -1;
+}
+
+function getColumnIndex(name, values) {
+    for (let i = 0; i < values.length; i++) {
+        for (let j = 0; j < values[0].length; j++) {
+            if (values[i][j] === name) return j;
+        }
+    }
+    return -1;
+}
+
+function isSameMonth(data, eventMonth, endIndex) {
+    for (let i = endIndex - 1; i >= 0; i--) {
+        if (data[0][i] === eventMonth) {
+            return true;
+        }
+        else if (typeof data[0][i] !== 'undefined') {
+            return false;
+        }
+    }
+    return false;
 }
