@@ -20,15 +20,16 @@ async function main() {
     // const updateDimensionPropertiesRequest = getResizeColumnRequest('0', 25, 100);
     // const mergeCells = getMergeCells('0', 0, 1, 12, 17, 'MERGE_ALL');
 
-    const array = ['0', '1', '2', '3', '4', '5'];
-    const cellFormat = getCellCentreFormat();
-    const cellData = cellToCellData(array, cellFormat);
-    const rowData = getRowData(cellData);
-    const range = getGridRange('0', 20, 21, 0, 6);
-    const updateCellsRequest = getUpdateCellsRequest(rowData, range);
-    requests.push(updateCellsRequest);
+    // const array = ['0', '1', '2', '3', '4', '5'];
+    // const cellFormat = getCellCentreFormat();
+    // const cellData = cellToCellData(array, cellFormat);
+    // const rowData = getRowData(cellData);
+    // const range = getGridRange('0', 20, 21, 0, 6);
+    // const updateCellsRequest = getUpdateCellsRequest(rowData, range);
+    
+    const makeNewColumnRequest = createNewAttendanceColumn(data, '0');
+    requests.push(makeNewColumnRequest);
     await batchUpdate(googleSheetClient, requests);
-    console.log(updateCellsRequest);
 }
 
 async function getSpreadsheet(googleSheetClient) {
@@ -177,4 +178,22 @@ function cellToCellData(data, cellFormat) {
     }
 
     return cellData;
+}
+
+function createNewAttendanceColumn(data, sheetId, eventMonth, eventDate, practiceType) {
+    const sampleIndex = getIndex('SAMPLE', data);
+    const emptyRowIndex = data.length;
+    const emptyColumnIndex = data[sampleIndex].length;
+
+    const source = getGridRange(sheetId, sampleIndex, sampleIndex + 1, 2, 3);
+    const destination = getGridRange(sheetId, 4, emptyRowIndex, emptyColumnIndex, emptyColumnIndex + 1);
+    
+    return getCopyPasteRequest(source, destination);
+}
+
+function getIndex(name, values) {
+    for (let i = 0; i < values.length; i++) {
+        if (values[i][0] === name) return i;
+    }
+    return -1;
 }
