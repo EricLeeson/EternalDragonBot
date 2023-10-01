@@ -20,9 +20,15 @@ async function main() {
     // const updateDimensionPropertiesRequest = getResizeColumnRequest('0', 25, 100);
     // const mergeCells = getMergeCells('0', 0, 1, 12, 17, 'MERGE_ALL');
 
-    // requests.push(mergeCells);
-    // await batchUpdate(googleSheetClient, requests);
-    // console.log(data);
+    const array = ['0', '1', '2', '3', '4', '5'];
+    const cellFormat = getCellCentreFormat();
+    const cellData = cellToCellData(array, cellFormat);
+    const rowData = getRowData(cellData);
+    const range = getGridRange('0', 20, 21, 0, 6);
+    const updateCellsRequest = getUpdateCellsRequest(rowData, range);
+    requests.push(updateCellsRequest);
+    await batchUpdate(googleSheetClient, requests);
+    console.log(updateCellsRequest);
 }
 
 async function getSpreadsheet(googleSheetClient) {
@@ -118,9 +124,11 @@ function getDimensionRange(sheetId, dimension, startIndex, endIndex) {
 
 function getUpdateCellsRequest(rowData, range) {
     const request = {
-        rows : [ rowData ],
-        fields : 'CellData.userEnteredValue.userEnteredFormat',
-        range
+        updateCells : {
+            rows : [ rowData ],
+            fields : '*',
+            range
+        }
     };
 
     return request;
@@ -143,7 +151,11 @@ function getCellFormat(horizontalAlignment, verticalAlignment) {
     return cellFormat;
 }
 
-function getRowData(...values) {
+function getCellCentreFormat() {
+    return getCellFormat('CENTER', 'MIDDLE');
+}
+
+function getRowData(values) {
     const rowData = {values};
 
     return rowData;
@@ -154,6 +166,15 @@ function getCellData(userEnteredValue, userEnteredFormat) {
         userEnteredValue,
         userEnteredFormat
     };
+
+    return cellData;
+}
+
+function cellToCellData(data, cellFormat) {
+    const cellData = [];
+    for (let i = 0; i < data.length; i++) {
+        cellData[i] = getCellData(getExtendedValue(data[i]), cellFormat);
+    }
 
     return cellData;
 }
