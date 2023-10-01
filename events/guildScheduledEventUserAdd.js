@@ -4,18 +4,16 @@ module.exports = {
     name : Events.GuildScheduledEventUserAdd,
     once: false,
     async execute(scheduledEvent, user) {
-        // Commented out due to current bug
-        // const id = scheduledEvent.id;
-        // const event = await scheduledEvent.guild.scheduledEvents.fetch( {guildScheduledEvent : id, force: true} );
-        // if (event.name.endsWith('Practice')) {
-        //     try {
-        //         await console.log('+1');
-        //     } catch (error) {
-        //         console.error(error);
-        //     }
-        // }
+        const id = scheduledEvent.id;
+        if (scheduledEvent.description.endsWith('Practice')) {
+            try {
+                console.log('+1');
+            } catch (error) {
+                console.error(error);
+            }
+        }
         try {
-            await console.log('+1');
+            console.log('+1');
         } catch (error) {
             console.error(error);
         }
