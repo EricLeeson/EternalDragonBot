@@ -28,9 +28,9 @@ async function main() {
     // const range = getGridRange('0', 20, 21, 0, 6);
     // const updateCellsRequest = getUpdateCellsRequest(rowData, range);
     
-    const makeNewColumnRequest = createNewAttendanceColumn(data, '0', 'October', '18', 'Land');
-    requests.push(...makeNewColumnRequest);
-    await batchUpdate(googleSheetClient, requests);
+    // const makeNewColumnRequest = createNewAttendanceColumn(data, '0', 'October', '18', 'Land');
+    // requests.push(...makeNewColumnRequest);
+    // await batchUpdate(googleSheetClient, requests);
 }
 
 async function getSpreadsheet(googleSheetClient) {

@@ -5,6 +5,9 @@ dotenv.config();
 const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, GatewayIntentBits, Partials } = require('discord.js');
+const { waterPracticeAnnouncementDays, landPracticeAnnouncementDays } = require('./announcementDays.js')
+const createPractice = require('./createPractice.js')
+let cron = require('node-cron');
 
 // Create a new client instance
 const client = new Client({
@@ -32,7 +35,6 @@ for (const folder of commandFolders) {
 		const filePath = path.join(commandsPath, file);
 		const command = require(filePath);
 		// Set a new item in the Collection with the key as the command name and the value as the exported module
-		console.log(command.data.name);
 		if ('data' in command && 'execute' in command) {
 			client.commands.set(command.data.name, command);
 		} else {
@@ -54,6 +56,7 @@ for (const file of eventFiles) {
 		client.on(event.name, (...args) => event.execute(...args));
 	}
 }
+
 
 // Log in to Discord with your client's token
 client.login(process.env.DISCORD_TOKEN);
