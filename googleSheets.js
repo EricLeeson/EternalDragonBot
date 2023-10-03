@@ -1,43 +1,45 @@
 const { google } = require('googleapis');
 const { getGoogleSheetClient } = require('./googleAuth');
 const { underscore } = require('discord.js');
+const dotenv = require('dotenv');
+dotenv.config;
 
 const serviceAccountKeyFile = 'credentials.json';
-const spreadSheetId = '107NedbR7ZPVWFQg5hln2c0zXqD-RjNoLfzZCKPXiP-E';
-const tabName = 'Attendance Sheet';
+const spreadSheetId = process.env.SPREADSHEET_ID;
+const sheetId = process.env.ATTENDANCE_SHEET_ID;
+const tabName = process.env.ATTENDANCE_SHEET_NAME;
+const ALPH = 'ABCDEFGHIJKLMNOPQRSTUVWXYSZ';
 
-main().then( () => {
-    console.log('Completed');
-})
+// main().then( () => {
+//     console.log('Completed');
+// })
 
-async function main() {
-    // Generating google sheet client
-    console.log('hi');
-    const googleSheetClient = await getGoogleSheetClient();
+// async function main() {
+//     // Generating google sheet client
+//     const googleSheetClient = await getGoogleSheetClient();
   
-    // Reading Google Sheet from a specific range
-    const data = await getSpreadsheet(googleSheetClient);
-    const requests = [];
-    console.log(data);
-    // const copyPasteRequest = getCopyPasteRequest(getGridRange('0', 0, 1, 0, 1), getGridRange('0', 1, 2, 1, 2));
-    // const updateDimensionPropertiesRequest = getResizeColumnRequest('0', 25, 100);
-    // const mergeCells = getMergeCells('0', 0, 1, 12, 17, 'MERGE_ALL');
+//     // Reading Google Sheet from a specific range
+//     const data = await getSpreadsheet(googleSheetClient);
+//     const requests = [];
+//     // const copyPasteRequest = getCopyPasteRequest(getGridRange('0', 0, 1, 0, 1), getGridRange('0', 1, 2, 1, 2));
+//     // const updateDimensionPropertiesRequest = getResizeColumnRequest('0', 25, 100);
+//     // const mergeCells = getMergeCells('0', 0, 1, 12, 17, 'MERGE_ALL');
 
-    // const array = ['0', '1', '2', '3', '4', '5'];
-    // const cellFormat = getCellCentreFormat();
-    // const cellData = cellToCellData(array, cellFormat);
-    // const rowData = getRowData(cellData);
-    // const range = getGridRange('0', 20, 21, 0, 6);
-    // const updateCellsRequest = getUpdateCellsRequest(rowData, range);
+//     // const array = ['0', '1', '2', '3', '4', '5'];
+//     // const cellFormat = getCellCentreFormat();
+//     // const cellData = cellToCellData(array, cellFormat);
+//     // const rowData = getRowData(cellData);
+//     // const range = getGridRange('0', 20, 21, 0, 6);
+//     // const updateCellsRequest = getUpdateCellsRequest(rowData, range);
     
-    // const makeNewColumnRequest = createNewAttendanceColumn(data, '0', 'October', '18', 'Land');
-    // requests.push(...makeNewColumnRequest);
-    // await batchUpdate(googleSheetClient, requests);
-}
+//     // const makeNewColumnRequest = createNewAttendanceColumn(data, '0', 'October', '18', 'Land');
+//     // requests.push(...makeNewColumnRequest);
+//     // await batchUpdate(googleSheetClient, requests);
+// }
 
 async function getSpreadsheet(googleSheetClient) {
     const res = await googleSheetClient.spreadsheets.values.get({
-        spreadsheetId: '107NedbR7ZPVWFQg5hln2c0zXqD-RjNoLfzZCKPXiP-E',
+        spreadsheetId : spreadSheetId,
         range: `${tabName}`,
     });
     return res.data.values;
@@ -93,7 +95,7 @@ async function batchUpdate(googleSheetClient, requests) {
     const batchUpdateRequest = { requests };
     try {
         const response = await googleSheetClient.spreadsheets.batchUpdate({
-            spreadsheetId : '107NedbR7ZPVWFQg5hln2c0zXqD-RjNoLfzZCKPXiP-E',
+            spreadsheetId : spreadSheetId,
             resource : batchUpdateRequest
         });
     } catch (error) {
@@ -158,6 +160,10 @@ function getCellCentreFormat() {
     return getCellFormat('CENTER', 'MIDDLE');
 }
 
+function getNameCellFormat() {
+    return getCellFormat('LEFT', 'MIDDLE');
+}
+
 function getRowData(values) {
     const rowData = {values};
 
@@ -182,8 +188,11 @@ function cellToCellData(data, cellFormat) {
     return cellData;
 }
 
-function createNewAttendanceColumn(data, sheetId, eventMonth, eventDate, practiceType) {
-    const sampleIndex = getRowIndex('SAMPLE', data);
+async function createNewAttendanceColumn(eventMonth, eventDate, practiceType) {
+    const googleSheetClient = await getGoogleSheetClient();
+    const data = await getSpreadsheet(googleSheetClient);
+
+    const sampleIndex = getSampleIndex(data);
     const emptyRowIndex = data.length;
     const emptyColumnIndex = data[sampleIndex].length;
 
@@ -209,7 +218,7 @@ function createNewAttendanceColumn(data, sheetId, eventMonth, eventDate, practic
     requests.push(copyPasteRequest);
     requests.push(updateCellsRequest);
 
-    return requests;
+    await batchUpdate(googleSheetClient, requests);
 }
 
 function getUpdateHeadersRequest(sheetId, headerArray, columnIndex) {
@@ -221,8 +230,7 @@ function getUpdateHeadersRequest(sheetId, headerArray, columnIndex) {
     }
     const range = getGridRange(sheetId, startRowIndex, startRowIndex + headerArray.length, columnIndex, columnIndex + 1);
     const request = getUpdateCellsRequest(rows, range);
-    console.log(request);
-    console.log(rows);
+
     return request;
 }
 
@@ -254,4 +262,99 @@ function isSameMonth(data, eventMonth, endIndex) {
         }
     }
     return false;
+}
+
+async function takeAttendance(subscribers) {
+    const googleSheetClient = await getGoogleSheetClient();
+    const data = await getSpreadsheet(googleSheetClient);
+    
+    const sampleIndex = getSampleIndex(data);
+    const emptyRowIndex = data.length;
+    const emptyColumnIndex = data[sampleIndex].length;
+
+    
+    const names = getNames(data);
+    const newNames = [];
+    const updatedCells = [];
+    for (let i = 0; i < subscribers.length; i++) {
+        console.log(!(names.includes(subscribers[i])));
+        if (!(names.includes(subscribers[i]))) {
+            newNames.push(subscribers[i]);
+            names.push(subscribers[i]);
+        }
+        updatedCells.push(getValueRange(names.indexOf(subscribers[i]) + 4, emptyColumnIndex - 1, 'ROWS', [['P']]));
+    }
+    const requests = [];
+    
+    if (newNames.length !== 0) {
+        requests.push(getUpdateNamesRequest(newNames, emptyRowIndex));
+        requests.push(getCopyRowRequest(data, sampleIndex, emptyRowIndex, newNames.length));
+        await batchUpdate(googleSheetClient, requests);
+    }
+
+    const resource = getBatchUpdateRequest('RAW', updatedCells);
+    await googleSheetClient.spreadsheets.values.batchUpdate({spreadsheetId : spreadSheetId, resource});
+}
+
+function getSampleIndex(data) {
+    return getRowIndex('SAMPLE', data);
+}
+
+function getCopyRowRequest( data, sourceIndex, destinationIndex, height) {
+    const endColumnIndex = data[sourceIndex].length;
+    const source = getGridRange(sheetId, sourceIndex, sourceIndex + 1, 1, endColumnIndex);
+    const destination = getGridRange(sheetId, destinationIndex, destinationIndex + height, 1, endColumnIndex);
+
+    return getCopyPasteRequest(source, destination);
+}
+
+function getUpdateNamesRequest(newNames, emptyRowIndex) {
+    const cellFormat = getNameCellFormat();
+    const rows = []
+    for (let i = 0; i < newNames.length; i++) {
+        rows.push(getRowData(cellToCellData([newNames[i]], cellFormat)));
+    }
+    const range = getGridRange(sheetId, emptyRowIndex, emptyRowIndex + newNames.length, 0, 1);
+    const request = getUpdateCellsRequest(rows, range);
+
+    return request;
+}
+
+function getBatchUpdateRequest(valueInputOption, data) {
+    const request = {
+        valueInputOption,
+        data
+    }
+    return request;
+}
+
+function getValueRange(row, column, majorDimension, values) {
+    range = indicesToA1Notation(row, column);
+    const valueRange = {
+        range,
+        majorDimension,
+        values
+    }
+    return valueRange;
+}
+
+function indicesToA1Notation(row, column) {
+    let letter = ALPH[column % 26];
+    if (column > 25) letter = ALPH[Math.floor(column / 26)] + letter;
+    
+    return `${letter}${row + 1}`;
+}
+
+
+function getNames(data) {
+    const names = [];
+    for (let i = 4; i < data.length; i++) {
+        names[i - 4] = data[i][0];
+    }
+    return names;
+}
+
+module.exports = {
+    createNewAttendanceColumn,
+    takeAttendance
 }

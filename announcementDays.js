@@ -1,11 +1,11 @@
-const {waterPracticeDays, landPracticeDays} = require('./config.json');
+const {waterPracticeDays, landPracticeDays} = require('./config');
 
 const WEEKDAYS = 'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'.split(' ');
 
 function getAnnouncementDays(days) {
     const announcementDays = [];
     for (let i = 0; i < days.length; i++) {
-        announcementDays.push( (WEEKDAYS.indexOf(days[i]) + 6) % 7 );
+        announcementDays.push( (WEEKDAYS.indexOf(days[i]) + 5) % 7 );
     }
     return announcementDays.toString();
 }
