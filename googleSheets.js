@@ -277,7 +277,6 @@ async function takeAttendance(subscribers) {
     const newNames = [];
     const updatedCells = [];
     for (let i = 0; i < subscribers.length; i++) {
-        console.log(!(names.includes(subscribers[i])));
         if (!(names.includes(subscribers[i]))) {
             newNames.push(subscribers[i]);
             names.push(subscribers[i]);

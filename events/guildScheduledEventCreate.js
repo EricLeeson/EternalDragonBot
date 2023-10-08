@@ -21,6 +21,6 @@ module.exports = {
 };
 
 function getPracticeAnnouncementMessage(scheduledEvent) {
-    const ANNOUNCEMENT = `${process.env.PADDLER_ROLE_ID} Sign-up for ${scheduledEvent.name} is now up!\n\nLet us know you're coming by responding to the event on the top left corner of the server.`;
+    const ANNOUNCEMENT = `<@${process.env.PADDLER_ROLE_ID}> Sign-up for ${scheduledEvent.name} is now up!\n\nLet us know you're coming by responding to the event on the top left corner of the server.`;
     return ANNOUNCEMENT;
 }

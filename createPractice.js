@@ -2,6 +2,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const googleSheets = require('./googleSheets');
+const takeAttendance = require('./takeAttendance');
 
 function getDate(type) {
     const practiceTime = new Date();
@@ -45,6 +46,8 @@ async function execute(client, practiceType) {
     const eventDate = scheduledStartTime.getDate().toString();
 
     googleSheets.createNewAttendanceColumn(eventMonth, eventDate, practiceType);
+
+    setTimeout( () => takeAttendance.execute(event), 230400000);
 }
 
 module.exports = {
