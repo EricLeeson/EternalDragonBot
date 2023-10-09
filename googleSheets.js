@@ -269,34 +269,37 @@ async function takeAttendance(subscribers) {
     const data = await getSpreadsheet(googleSheetClient);
     
     const sampleIndex = getSampleIndex(data);
-    const emptyRowIndex = data.length;
     const emptyColumnIndex = data[sampleIndex].length;
 
     
     const names = getNames(data);
-    const newNames = [];
     const updatedCells = [];
     for (let i = 0; i < subscribers.length; i++) {
         if (!(names.includes(subscribers[i]))) {
             newNames.push(subscribers[i]);
-            names.push(subscribers[i]);
         }
         updatedCells.push(getValueRange(names.indexOf(subscribers[i]) + 4, emptyColumnIndex - 1, 'ROWS', [['P']]));
     }
-    const requests = [];
-    
-    if (newNames.length !== 0) {
-        requests.push(getUpdateNamesRequest(newNames, emptyRowIndex));
-        requests.push(getCopyRowRequest(data, sampleIndex, emptyRowIndex, newNames.length));
-        await batchUpdate(googleSheetClient, requests);
-    }
 
     const resource = getBatchUpdateRequest('RAW', updatedCells);
-    await googleSheetClient.spreadsheets.values.batchUpdate({spreadsheetId : spreadSheetId, resource});
+    googleSheetClient.spreadsheets.values.batchUpdate({spreadsheetId : spreadSheetId, resource});
 }
 
 function getSampleIndex(data) {
     return getRowIndex('SAMPLE', data);
+}
+
+async function updateName(oldName, newName) {
+    const googleSheetClient = await getGoogleSheetClient();
+    const data = await getSpreadsheet(googleSheetClient);
+
+    const names = getNames(data);
+
+    const updatedCells = []
+    updatedCells.push(getValueRange(names.indexOf(oldName) + 4, 0, 'ROWS', [[newName]]));
+
+    const resource = getBatchUpdateRequest('RAW', updatedCells);
+    googleSheetClient.spreadsheets.values.batchUpdate({spreadsheetId : spreadSheetId, resource});
 }
 
 function getCopyRowRequest( data, sourceIndex, destinationIndex, height) {
@@ -317,6 +320,20 @@ function getUpdateNamesRequest(newNames, emptyRowIndex) {
     const request = getUpdateCellsRequest(rows, range);
 
     return request;
+}
+
+async function createNewNameRow(name) {
+    const googleSheetClient = await getGoogleSheetClient();
+    const data = await getSpreadsheet(googleSheetClient);
+    
+    const sampleIndex = getSampleIndex(data);
+    const emptyRowIndex = data.length;
+
+    const requests = [];
+    
+    requests.push(getUpdateNamesRequest([name], emptyRowIndex));
+    requests.push(getCopyRowRequest(data, sampleIndex, emptyRowIndex, 1));
+    await batchUpdate(googleSheetClient, requests);
 }
 
 function getBatchUpdateRequest(valueInputOption, data) {
@@ -355,5 +372,7 @@ function getNames(data) {
 
 module.exports = {
     createNewAttendanceColumn,
-    takeAttendance
+    takeAttendance,
+    createNewNameRow,
+    updateName
 }

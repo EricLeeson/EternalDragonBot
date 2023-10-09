@@ -1,13 +1,19 @@
-const { Events, GuildScheduledEvent } = require('discord.js');
+const dotenv = require('dotenv');
+dotenv.config;
+
+const { Events, ChannelType } = require('discord.js');
+const createPrivateThread = require('../createPrivateThread');
 
 module.exports = {
     name : Events.GuildMemberAdd,
     once: false,
     async execute(member) {
-    try {
-        console.log(`${user.username} is interested`);
-    } catch (error) {
-        console.error(error);
+        const channel = await member.guild.channels.fetch(process.env.THREADS_CHANNEL_ID);
+        try {
+            console.log(`${member.user.username} is interested`);
+            createPrivateThread.execute(member, channel);
+        } catch (error) {
+            console.error(error);
         }
     }
 };
