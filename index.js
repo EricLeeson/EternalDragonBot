@@ -4,7 +4,7 @@ dotenv.config();
 // Require the necessary discord.js classes
 const fs = require('node:fs');
 const path = require('node:path');
-const { Client, Collection, GatewayIntentBits, Partials, ChannelType } = require('discord.js');
+const { Client, Collection, GatewayIntentBits, Partials, ChannelType, EmbedBuilder, Embed} = require('discord.js');
 let cron = require('node-cron');
 
 // Create a new client instance

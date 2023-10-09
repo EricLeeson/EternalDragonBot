@@ -23,5 +23,5 @@ async function getInviteMessage(member) {
     const memberId = member.id;
     const dragonboatMamaId = await member.guild.roles.fetch(process.env.DRAGON_BOAT_MAMA_ROLE_ID);
     const teacherSponsorRoleId = await member.guild.roles.fetch(process.env.TEACHER_SPONSOR_ROLE_ID);
-    return `${coachRoleId} ${dragonboatMamaId} ${teacherSponsorRoleId}\n\nHey <@${memberId}>, welcome to the Eternal Dragon 2023-24 Discord server! If you ever want to contact the coaches, just send a message to this thread.\n\n**Get started by telling us your full name to get complete access to the server!**`;
+    return `${coachRoleId} ${dragonboatMamaId} ${teacherSponsorRoleId}\n\nHey <@&${memberId}>, welcome to the Eternal Dragon 2023-24 Discord server! If you ever want to contact the coaches, just send a message to this thread.\n\n**Get started by telling us your full name to get complete access to the server!**`;
 }

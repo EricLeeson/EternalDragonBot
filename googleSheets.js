@@ -214,7 +214,8 @@ async function createNewAttendanceColumn(eventMonth, eventDate, practiceType) {
     headerArray.push(eventDate, practiceHeader);
 
     const updateCellsRequest = getUpdateHeadersRequest(sheetId, headerArray, emptyColumnIndex);
-    
+    const resizeColumnRequest = getResizeColumnRequest(sheetId, emptyColumnIndex, 55);
+
     requests.push(copyPasteRequest);
     requests.push(updateCellsRequest);
 

@@ -1,7 +1,7 @@
 const dotenv = require('dotenv');
 dotenv.config();
 
-const { Events } = require('discord.js');
+const { Events, EmbedBuilder } = require('discord.js');
 
 module.exports = {
     name : Events.GuildScheduledEventCreate,
@@ -21,6 +21,6 @@ module.exports = {
 };
 
 function getPracticeAnnouncementMessage(scheduledEvent) {
-    const ANNOUNCEMENT = `<@${process.env.PADDLER_ROLE_ID}> Sign-up for ${scheduledEvent.name} is now up!\n\nLet us know you're coming by responding to the event on the top left corner of the server.`;
+    const ANNOUNCEMENT = `${scheduledEvent.url}\n\n<@&${process.env.PADDLER_ROLE_ID}> **Sign-up for ${scheduledEvent.name} is now up!**\nLet us know you're coming by **clicking you're interested!**`;
     return ANNOUNCEMENT;
 }
