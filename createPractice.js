@@ -4,24 +4,45 @@ dotenv.config();
 const googleSheets = require('./googleSheets');
 const takeAttendance = require('./takeAttendance');
 
-function getDate(type, practiceType) {
+function getStartDate(practiceType) {
     const practiceTime = new Date();
     practiceTime.setDate(practiceTime.getDate() + 2);
-    let hours = 0;
-    if (type === 'start') {
-        if (practiceType == 'Water') hours = 16;
-        else if (practiceType == 'Land') hours = 15;
+    if (practiceType == 'Water') {
         practiceTime.setHours(16);
+        practiceTime.setMinutes(0);
+    }
+    if (practiceType == 'Land') {
+        practiceTime.setHours(15);
         practiceTime.setMinutes(30);
-    } else if (type === 'end') {
-        if (practiceTime == 'Water') hours = 18;
-        else if (practiceTime == 'Land') {
-            hours = 17;
-            practiceTime.setMinutes(30);
-        }
-        practiceTime.setHours(18);
     }
     return practiceTime;
+}
+
+function getEndDate(practiceType) {
+    const practiceTime = new Date();
+    practiceTime.setDate(practiceTime.getDate() + 2);
+    practiceTime.setHours(18);
+    practiceTime.setMinutes(0);
+    
+    return practiceTime;
+}
+
+function getDescription(practiceType) {
+    if (practiceType == 'Water') {
+        return `Hone your dragon boat technique at this week's ${practiceType} Practice!`;
+    }
+    if (practiceType == 'Land') {
+        return `Train your strength at this week's ${practiceType} Practice!`;
+    }
+}
+
+function getLocation(practiceType) {
+    if (practiceType == 'Water') {
+        return '1 Athletes Way';
+    }
+    if (practiceType == 'Land') {
+        return 'Eric Hamber Secondary in Room A307';
+    }
 }
 
 function numToMonth(num) {
@@ -34,10 +55,11 @@ async function execute(client, practiceType) {
     const guild = client.guilds.cache.get(process.env.GUILD_ID);
     
     const name = `${practiceType} Practice`;
-    const scheduledStartTime = getDate('start', practiceType);
-    const scheduledEndTime = getDate('end', practiceType);
-    const description = `Hone your dragon boat technique at this week's ${practiceType} Practice!`;
-    const entityMetadata = {location : '1 Athletes Way'};
+    const scheduledStartTime = getStartDate(practiceType)
+    const scheduledEndTime = getEndDate(practiceType);
+    const description = getDescription(practiceType);
+    const location = getLocation(practiceType);
+    const entityMetadata = {location};
     const image = './eternaldragonconcord2023.jpg';
     const event = await guild.scheduledEvents.create({
         name,

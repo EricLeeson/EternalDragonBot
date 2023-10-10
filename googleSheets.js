@@ -86,8 +86,8 @@ function getUpdateDimensionPropertiesRequest(sheetId, dimension, startIndex, end
     return request;
 }
 
-async function getResizeColumnRequest(sheetId, index, pixelSize) { 
-    const request = await getUpdateDimensionPropertiesRequest(sheetId, 'COLUMNS', index, index + 1, pixelSize);
+function getResizeColumnRequest(sheetId, index, pixelSize) { 
+    const request = getUpdateDimensionPropertiesRequest(sheetId, 'COLUMNS', index, index + 1, pixelSize);
     return request;
 }
 
@@ -215,9 +215,10 @@ async function createNewAttendanceColumn(eventMonth, eventDate, practiceType) {
 
     const updateCellsRequest = getUpdateHeadersRequest(sheetId, headerArray, emptyColumnIndex);
     const resizeColumnRequest = getResizeColumnRequest(sheetId, emptyColumnIndex, 55);
-
+    
     requests.push(copyPasteRequest);
     requests.push(updateCellsRequest);
+    requests.push(resizeColumnRequest);
 
     await batchUpdate(googleSheetClient, requests);
 }

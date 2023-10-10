@@ -4,7 +4,7 @@ async function execute(scheduledEvent) {
     const subs = await scheduledEvent.fetchSubscribers({withMember : true});
     const nicknames = getNicknames(subs);
     googleSheets.takeAttendance(nicknames);
-    console.log('took attendance');
+    console.log('Took attendance.');
 }
 
 module.exports = {
