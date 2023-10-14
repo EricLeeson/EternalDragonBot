@@ -20,6 +20,9 @@ module.exports = {
                     await newMember.roles.add(paddlerRole);
                     const channel = await newMember.guild.channels.fetch(process.env.THREADS_CHANNEL_ID);
                     const threadName = oldMember.nickname || oldMember.user.username;
+                    console.log(threadName);
+                    console.log(newMember.user.username);
+                    console.log(newMember);
                     const threadCollection = await channel.threads.fetchActive();
                     const thread = threadCollection.threads.find(x => x.name === threadName);
                     await thread.edit({name : newMember.nickname});

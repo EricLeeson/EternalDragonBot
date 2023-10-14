@@ -277,10 +277,9 @@ async function takeAttendance(subscribers) {
     const names = getNames(data);
     const updatedCells = [];
     for (let i = 0; i < subscribers.length; i++) {
-        if (!(names.includes(subscribers[i]))) {
-            newNames.push(subscribers[i]);
+        if (names.includes(subscribers[i])) {
+            updatedCells.push(getValueRange(names.indexOf(subscribers[i]) + 4, emptyColumnIndex - 1, 'ROWS', [['P']]));
         }
-        updatedCells.push(getValueRange(names.indexOf(subscribers[i]) + 4, emptyColumnIndex - 1, 'ROWS', [['P']]));
     }
 
     const resource = getBatchUpdateRequest('RAW', updatedCells);

@@ -4,7 +4,7 @@ dotenv.config;
 const { ChannelType } = require('discord.js');
 
 async function execute(member, channel) {
-    const name = member.user.globalName;
+    const name = member.user.username;
     const inviteMessage = await getInviteMessage(member);
     const thread = await channel.threads.create({
         name,
