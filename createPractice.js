@@ -71,7 +71,7 @@ async function execute(client, practiceType) {
         entityMetadata,
         image
     });
-
+    
     const eventMonth = numToMonth(scheduledStartTime.getMonth());
     const eventDate = scheduledStartTime.getDate().toString();
 

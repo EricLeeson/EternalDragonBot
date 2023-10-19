@@ -2,7 +2,7 @@ const { google } = require('googleapis');
 const { getGoogleSheetClient } = require('./googleAuth');
 const { underscore } = require('discord.js');
 const dotenv = require('dotenv');
-dotenv.config;
+dotenv.config();
 
 const serviceAccountKeyFile = 'credentials.json';
 const spreadSheetId = process.env.SPREADSHEET_ID;
@@ -266,19 +266,27 @@ function isSameMonth(data, eventMonth, endIndex) {
     return false;
 }
 
-async function takeAttendance(subscribers) {
+function getPracticeColumnIndex(data, event) {
+    const month = numToMonth(event.scheduledStartAt.getMonth());
+    const date = event.scheduledStartAt.getDate().toString();
+    const startIndex = data[0].indexOf(month);
+    for (let i = startIndex; i < data[1].length; i++) {
+        if (data[1][i] === date) return i;
+    }
+    return -1;
+}
+
+async function takeAttendance(subscribers, event) {
     const googleSheetClient = await getGoogleSheetClient();
     const data = await getSpreadsheet(googleSheetClient);
     
-    const sampleIndex = getSampleIndex(data);
-    const emptyColumnIndex = data[sampleIndex].length;
+    const practiceIndex = getPracticeColumnIndex(data, event);
 
-    
     const names = getNames(data);
     const updatedCells = [];
     for (let i = 0; i < subscribers.length; i++) {
         if (names.includes(subscribers[i])) {
-            updatedCells.push(getValueRange(names.indexOf(subscribers[i]) + 4, emptyColumnIndex - 1, 'ROWS', [['P']]));
+            updatedCells.push(getValueRange(names.indexOf(subscribers[i]) + 4, practiceIndex, 'ROWS', [['P']]));
         }
     }
 
@@ -369,6 +377,12 @@ function getNames(data) {
         names[i - 4] = data[i][0];
     }
     return names;
+}
+
+function numToMonth(num) {
+    const months = 'January February March April May June July August September October November December'.split(' ');
+
+    return months[num];
 }
 
 module.exports = {

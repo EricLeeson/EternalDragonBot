@@ -25,13 +25,9 @@ async function setAttendanceTimers(client) {
     const scheduledEvents = await guild.scheduledEvents.cache;
     console.log(scheduledEvents);
     for (const event of scheduledEvents.values()) {
-        console.log(event);
         const attendanceTime = event.scheduledStartAt;
-        console.log(attendanceTime);
         attendanceTime.setHours(16, 0);
-        console.log(attendanceTime);
         const timer = attendanceTime - Date.now();
-        console.log(timer);
         if (timer > 0) setTimeout( () => takeAttendance.execute(event), timer);
     }
 }
