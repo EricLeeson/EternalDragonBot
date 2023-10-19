@@ -23,7 +23,6 @@ module.exports = {
 async function setAttendanceTimers(client) {
     const guild = await client.guilds.fetch(process.env.GUILD_ID);
     const scheduledEvents = await guild.scheduledEvents.cache;
-    console.log(scheduledEvents);
     for (const event of scheduledEvents.values()) {
         const attendanceTime = event.scheduledStartAt;
         attendanceTime.setHours(16, 0);
