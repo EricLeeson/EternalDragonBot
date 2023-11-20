@@ -75,9 +75,16 @@ async function execute(client, practiceType) {
     const eventMonth = numToMonth(scheduledStartTime.getMonth());
     const eventDate = scheduledStartTime.getDate().toString();
 
-    googleSheets.createNewAttendanceColumn(eventMonth, eventDate, practiceType);
+    await googleSheets.createNewAttendanceColumn(eventMonth, eventDate, practiceType);
+    const timer = getAttendanceTimer(event);
+    setTimeout( () => takeAttendance.execute(event), timer);
+}
 
-    setTimeout( () => takeAttendance.execute(event), 230400000);
+function getAttendanceTimer(event) {
+    const attendanceTime = event.scheduledStartAt;
+    attendanceTime.setHours(16, 0);
+    const timer = attendanceTime - Date.now();
+    return timer;
 }
 
 module.exports = {

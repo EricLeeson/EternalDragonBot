@@ -267,6 +267,7 @@ function isSameMonth(data, eventMonth, endIndex) {
 }
 
 function getPracticeColumnIndex(data, event) {
+    console.log(event.scheduledStartAt);
     const month = numToMonth(event.scheduledStartAt.getMonth());
     const date = event.scheduledStartAt.getDate().toString();
     const startIndex = data[0].indexOf(month);
