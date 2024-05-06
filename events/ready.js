@@ -27,7 +27,7 @@ module.exports = {
         //     }
         // };
 
-        //publicThreadManager.execute(client.channels.cache.get(process.env.ANNOUNCEMENT_CHANNEL_ID), 'Land');
+        publicThreadManager.execute(client.channels.cache.get(process.env.ANNOUNCEMENT_CHANNEL_ID), 'Land');
         //googleSheets.createNewAttendanceColumn('May', '3', 'Water');
         //createPractice.execute(client, "Land");
         //await test(client, 11, 3);
