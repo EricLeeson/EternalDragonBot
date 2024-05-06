@@ -188,21 +188,35 @@ function cellToCellData(data, cellFormat) {
     return cellData;
 }
 
+function getAutoFillRequest(useAlternateSeries, range) {
+    const request = {
+        autoFill: {
+            useAlternateSeries,
+            range
+        }
+    };
+
+    return request;
+}
+
+
 async function createNewAttendanceColumn(eventMonth, eventDate, practiceType) {
     const googleSheetClient = await getGoogleSheetClient();
     const data = await getSpreadsheet(googleSheetClient);
 
     const sampleIndex = getSampleIndex(data);
+    const totalIndex = getTotalIndex(data);
     const emptyRowIndex = data.length;
     const emptyColumnIndex = data[sampleIndex].length;
 
     const source = getGridRange(sheetId, sampleIndex, sampleIndex + 1, 2, 3);
-    const destination = getGridRange(sheetId, 4, emptyRowIndex, emptyColumnIndex, emptyColumnIndex + 1);
+    const destination = getGridRange(sheetId, 4, sampleIndex + 1, emptyColumnIndex, emptyColumnIndex + 1);
 
     const requests = [];
     const copyPasteRequest = getCopyPasteRequest(source, destination);
+    const autofillRequest = getAutoFillRequest(false, getGridRange(sheetId, totalIndex, totalIndex + 1, emptyColumnIndex - 1, emptyColumnIndex + 1));
 
-    const headerArray = []
+    const headerArray = [];
     const practiceHeader = practiceType[0];
     if ( isSameMonth(data, eventMonth, emptyColumnIndex) ) {
         const currentMonthColumn = getColumnIndex(eventMonth, data);
@@ -217,6 +231,7 @@ async function createNewAttendanceColumn(eventMonth, eventDate, practiceType) {
     const resizeColumnRequest = getResizeColumnRequest(sheetId, emptyColumnIndex, 56);
     
     requests.push(copyPasteRequest);
+    requests.push(autofillRequest);
     requests.push(updateCellsRequest);
     requests.push(resizeColumnRequest);
 
@@ -266,13 +281,12 @@ function isSameMonth(data, eventMonth, endIndex) {
     return false;
 }
 
-function getPracticeColumnIndex(data, event) {
-    console.log(event.scheduledStartAt);
-    const month = numToMonth(event.scheduledStartAt.getMonth());
-    const date = event.scheduledStartAt.getDate().toString();
+function getPracticeColumnIndex(data, month, date) {
     const startIndex = data[0].indexOf(month);
     for (let i = startIndex; i < data[1].length; i++) {
-        if (data[1][i] === date) return i;
+        if (data[1][i] === date) {
+            return i;
+        }
     }
     return -1;
 }
@@ -295,8 +309,60 @@ async function takeAttendance(subscribers, event) {
     googleSheetClient.spreadsheets.values.batchUpdate({spreadsheetId : spreadSheetId, resource});
 }
 
+async function unsignup_member(member, month, date, type) {
+    const googleSheetClient = await getGoogleSheetClient();
+    const data = await getSpreadsheet(googleSheetClient);
+    
+    const request = {
+        majorDimension: "ROWS",
+        values: [['E']]
+    }
+
+    const practiceIndex = getPracticeColumnIndex(data, month, date);
+
+    const names = getNames(data);
+
+    googleSheetClient.spreadsheets.values.update({spreadsheetId: spreadSheetId,
+        range: indicesToA1Notation(names.indexOf(member) + 4, practiceIndex), 
+        valueInputOption: "USER_ENTERED", 
+        resource: request});
+    
+    return parseInt(getTotalCount(data, practiceIndex)) - 1;
+}
+
+async function resignup_member(member, month, date, type) {
+    const googleSheetClient = await getGoogleSheetClient();
+    const data = await getSpreadsheet(googleSheetClient);
+    
+    const request = {
+        majorDimension: "ROWS",
+        values: [['P']]
+    }
+
+    const practiceIndex = getPracticeColumnIndex(data, month, date);
+
+    const names = getNames(data);
+
+    googleSheetClient.spreadsheets.values.update({spreadsheetId: spreadSheetId,
+        range: indicesToA1Notation(names.indexOf(member) + 4, practiceIndex), 
+        valueInputOption: "USER_ENTERED", 
+        resource: request});
+
+    return parseInt(getTotalCount(data, practiceIndex)) + 1;
+}
+
+function getTotalCount(data, practiceIndex) {
+    const totalIndex = getTotalIndex(data);
+
+    return data[totalIndex][practiceIndex];
+}
+
 function getSampleIndex(data) {
     return getRowIndex('SAMPLE', data);
+}
+
+function getTotalIndex(data) {
+    return getRowIndex('TOTAL', data);
 }
 
 async function updateName(oldName, newName) {
@@ -366,7 +432,7 @@ function getValueRange(row, column, majorDimension, values) {
 
 function indicesToA1Notation(row, column) {
     let letter = ALPH[column % 26];
-    if (column > 25) letter = ALPH[Math.floor(column / 26)] + letter;
+    if (column > 25) letter = ALPH[Math.floor(column / 26)-1] + letter;
     
     return `${letter}${row + 1}`;
 }
@@ -386,9 +452,12 @@ function numToMonth(num) {
     return months[num];
 }
 
+
 module.exports = {
     createNewAttendanceColumn,
     takeAttendance,
     createNewNameRow,
-    updateName
+    updateName,
+    unsignup_member,
+    resignup_member
 }

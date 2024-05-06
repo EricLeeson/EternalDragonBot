@@ -5,6 +5,7 @@ let cron = require('node-cron');
 const createPractice = require('../createPractice');
 const takeAttendance = require('../takeAttendance');
 const googleSheets = require('../googleSheets');
+const publicThreadManager = require('../createPublicThread');
 const { waterPracticeAnnouncementDays, landPracticeAnnouncementDays } = require('../announcementDays')
 
 
@@ -15,10 +16,20 @@ module.exports = {
     once: true,
     async execute(client) {
         console.log(`Ready! Logged in as ${client.user.tag}!`);
-        cron.schedule(`0 0 * * ${waterPracticeAnnouncementDays}`, () => createPractice.execute(client, 'Water'));
-        cron.schedule(`0 0 * * ${landPracticeAnnouncementDays}`, () => createPractice.execute(client, 'Land'));
+        cron.schedule(`0 0 * * ${waterPracticeAnnouncementDays}`, () => publicThreadManager.execute(client.channels.cache.get(process.env.ANNOUNCEMENT_CHANNEL_ID), 'Water'));
+        cron.schedule(`0 0 * * ${landPracticeAnnouncementDays}`, () => publicThreadManager.execute(client.channels.cache.get(process.env.ANNOUNCEMENT_CHANNEL_ID), 'Land'));
         await setAttendanceTimers(client);
-        //createPractice.execute(client, "Water");
+
+        // const guild = await client.guilds.fetch(process.env.GUILD_ID);
+        // for (const member of guild.members.cache.values()) {
+        //     if (isPaddler(member)) {
+        //         console.log(member.nickname);
+        //     }
+        // };
+
+        publicThreadManager.execute(client.channels.cache.get(process.env.ANNOUNCEMENT_CHANNEL_ID), 'Land');
+        //googleSheets.createNewAttendanceColumn('May', '3', 'Water');
+        //createPractice.execute(client, "Land");
         //await test(client, 11, 3);
     },
 };
@@ -29,10 +40,14 @@ async function setAttendanceTimers(client) {
     for (const event of scheduledEvents) {
         const attendanceTime = structuredClone(event.scheduledStartAt);
         attendanceTime.setHours(16, 0);
-        const timer = attendanceTime - Date.now();
-        //const timer = 1;
-        if (timer > 0) setTimeout( () => takeAttendance.execute(event), timer);
+        //const timer = attendanceTime - Date.now();
+        // const timer = 1;
+        // if (timer > 0) setTimeout( () => takeAttendance.execute(event), timer);
     }
+}
+
+function isPaddler(member) {
+    return member.roles.cache.has(process.env.PADDLER_ROLE_ID);
 }
 
 // async function test(client, month, date) {
@@ -50,6 +65,6 @@ async function setAttendanceTimers(client) {
 //     googleSheets.takeAttendance(names, event);
 // }
 
-// function isPaddler(member) {
-//     return member.roles.cache.has(process.env.PADDLER_ROLE_ID);
-// }
+function isPaddler(member) {
+    return member.roles.cache.has(process.env.PADDLER_ROLE_ID);
+}
