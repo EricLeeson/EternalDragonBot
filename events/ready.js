@@ -18,7 +18,7 @@ module.exports = {
         console.log(`Ready! Logged in as ${client.user.tag}!`);
         cron.schedule(`0 0 * * ${waterPracticeAnnouncementDays}`, () => publicThreadManager.execute(client.channels.cache.get(process.env.ANNOUNCEMENT_CHANNEL_ID), 'Water'));
         cron.schedule(`0 0 * * ${landPracticeAnnouncementDays}`, () => publicThreadManager.execute(client.channels.cache.get(process.env.ANNOUNCEMENT_CHANNEL_ID), 'Land'));
-        await setAttendanceTimers(client);
+        //await setAttendanceTimers(client);
 
         // const guild = await client.guilds.fetch(process.env.GUILD_ID);
         // for (const member of guild.members.cache.values()) {
@@ -64,7 +64,3 @@ function isPaddler(member) {
 
 //     googleSheets.takeAttendance(names, event);
 // }
-
-function isPaddler(member) {
-    return member.roles.cache.has(process.env.PADDLER_ROLE_ID);
-}
