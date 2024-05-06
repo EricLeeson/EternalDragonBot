@@ -18,19 +18,8 @@ module.exports = {
         console.log(`Ready! Logged in as ${client.user.tag}!`);
         cron.schedule(`0 0 * * ${waterPracticeAnnouncementDays}`, () => publicThreadManager.execute(client.channels.cache.get(process.env.ANNOUNCEMENT_CHANNEL_ID), 'Water'));
         cron.schedule(`0 0 * * ${landPracticeAnnouncementDays}`, () => publicThreadManager.execute(client.channels.cache.get(process.env.ANNOUNCEMENT_CHANNEL_ID), 'Land'));
-        //await setAttendanceTimers(client);
 
-        // const guild = await client.guilds.fetch(process.env.GUILD_ID);
-        // for (const member of guild.members.cache.values()) {
-        //     if (isPaddler(member)) {
-        //         console.log(member.nickname);
-        //     }
-        // };
-
-        publicThreadManager.execute(client.channels.cache.get(process.env.ANNOUNCEMENT_CHANNEL_ID), 'Land');
-        //googleSheets.createNewAttendanceColumn('May', '3', 'Water');
-        //createPractice.execute(client, "Land");
-        //await test(client, 11, 3);
+        publicThreadManager.execute(client.channels.cache.get(process.env.ANNOUNCEMENT_CHANNEL_ID), 'Water');
     },
 };
 

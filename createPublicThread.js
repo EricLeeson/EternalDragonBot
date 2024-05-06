@@ -36,7 +36,7 @@ function getOptions(practiceType) {
 
 function getStartDate() {
     const practiceTime = new Date();
-    practiceTime.setDate(practiceTime.getDate() + 1);
+    practiceTime.setDate(practiceTime.getDate() + 2);
     return practiceTime;
 }
 
