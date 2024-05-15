@@ -14,7 +14,7 @@ module.exports = {
             } else {
                 const words = title.split(' ');
                 const month = words[1];
-                const date = words[2].substring(0, 1);
+                const date = words[2].substring(0, words[2].length - 1);
                 const type = words[4];
                 const count = await googleSheets.resignup_member(interaction.member.nickname, month, date, type);
     
