@@ -432,7 +432,7 @@ function getValueRange(row, column, majorDimension, values) {
 
 function indicesToA1Notation(row, column) {
     let letter = ALPH[column % 26];
-    if (column > 25) letter = ALPH[Math.floor(column / 26)-1] + letter;
+    if (column > 25) letter = ALPH[(Math.floor(column / 26) - 1) % 26] + letter;
     
     return `${letter}${row + 1}`;
 }
