@@ -6,10 +6,11 @@ module.exports = {
     data : new SlashCommandBuilder()
         .setName('unsignup')
         .setDescription('Unsigns you for a practice.')
-        .addStringOption(option =>
-            option.setName('reason')
-                .setDescription('Reason for absence')
-                .setRequired(true)),
+        // .addStringOption(option =>
+        //     option.setName('reason')
+        //         .setDescription('Reason for absence')
+        //         .setRequired(true))
+        ,
     async execute(interaction) {
         const title = interaction.channel.name;
         if (isPaddler(interaction.member)) {
@@ -22,9 +23,11 @@ module.exports = {
                 const type = words[4];
                 const count = await googleSheets.unsignup_member(interaction.member.nickname, month, date, type);
 
-                const reason = interaction.options.getString('reason');
+                // const reason = interaction.options.getString('reason');
     
-                await interaction.reply(`${interaction.member} unsigned from practice. Reason: "${reason}".\n**Current paddler count**: ${count}`);
+                // await interaction.reply(`${interaction.member} unsigned from practice. Reason: "${reason}".\n**Current paddler count**: ${count}`);
+                await interaction.reply(`${interaction.member} unsigned from practice.\n**Current paddler count**: ${count}`);
+
             }
         }
     },

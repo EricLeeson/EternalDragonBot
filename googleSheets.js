@@ -218,7 +218,7 @@ async function createNewAttendanceColumn(eventMonth, eventDate, practiceType) {
 
     const headerArray = [];
     const practiceHeader = practiceType[0];
-    if ( isSameMonth(data, eventMonth, emptyColumnIndex) ) {
+    if (eventMonth && isSameMonth(data, eventMonth, emptyColumnIndex) ) {
         const currentMonthColumn = getColumnIndex(eventMonth, data);
         const mergeCellsRequest = getMergeCells(sheetId, 0, 1, currentMonthColumn, emptyColumnIndex + 1);
         requests.push(mergeCellsRequest);
