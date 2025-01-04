@@ -19,7 +19,7 @@ module.exports = {
         cron.schedule(`0 0 * * ${waterPracticeAnnouncementDays}`, () => publicThreadManager.execute(client.channels.cache.get(process.env.ANNOUNCEMENT_CHANNEL_ID), 'Water'));
         cron.schedule(`0 0 * * ${landPracticeAnnouncementDays}`, () => publicThreadManager.execute(client.channels.cache.get(process.env.ANNOUNCEMENT_CHANNEL_ID), 'Land'));
 
-        //publicThreadManager.execute(client.channels.cache.get(process.env.ANNOUNCEMENT_CHANNEL_ID), 'Water');
+        publicThreadManager.execute(client.channels.cache.get(process.env.ANNOUNCEMENT_CHANNEL_ID), 'Water');
     },
 };
 
