@@ -8,13 +8,13 @@ async function execute(channel, practiceType) {
     options = getOptions(practiceType);
     googleSheets.createNewAttendanceColumn(options.month, options.day, practiceType);
 
-    // const inviteMessage = await getInviteMessage();
-    // const thread = await channel.threads.create({
-    //     name,
-    //     type: ChannelType.PublicThread,
-    //     invitable: false,
-    // })
-    // await thread.send(inviteMessage);
+    const inviteMessage = await getInviteMessage();
+    const thread = await channel.threads.create({
+        name,
+        type: ChannelType.PublicThread,
+        invitable: false,
+    })
+    await thread.send(inviteMessage);
 }
 
 module.exports = {
@@ -48,7 +48,8 @@ function getThreadTitle(date, practiceType) {
         day: 'numeric',
     };
       
-    const title = date.toLocaleDateString(undefined, options) + ' ' + practiceType + ' Practice Signup';
+    const title = date.toLocaleDateString(undefined, options) + ' ' + practiceType + ' Practice Unsignup';
+    // const title = date.toLocaleDateString(undefined, options) + ' ' + practiceType + ' Practice Signup';
     return title;
 }
 
@@ -57,7 +58,7 @@ function numToMonth(num) {
 
     return months[num];
 }
-
+    
 async function getInviteMessage() {
     return `<@&${process.env.PADDLER_ROLE_ID}> Unsign-ups for practice are now up. To sign up, use the /unsignup command.`;
     // return `<@&${process.env.PADDLER_ROLE_ID}> Sign-ups for practice are now up. To sign up, use the /signup command.`;

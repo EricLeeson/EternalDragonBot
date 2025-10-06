@@ -1,5 +1,5 @@
 const { Routes, SlashCommandBuilder } = require('discord.js');
-const googleSheets = require('/Users/ericj/Documents/Co-opPrep/JavaScript/googleSheets.js');
+const googleSheets = require('../../googleSheets.js');
 
 module.exports = {
     cooldown: 30,
