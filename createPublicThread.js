@@ -48,8 +48,8 @@ function getThreadTitle(date, practiceType) {
         day: 'numeric',
     };
       
-    const title = date.toLocaleDateString(undefined, options) + ' ' + practiceType + ' Practice Unsignup';
-    // const title = date.toLocaleDateString(undefined, options) + ' ' + practiceType + ' Practice Signup';
+    // const title = date.toLocaleDateString(undefined, options) + ' ' + practiceType + ' Practice Unsignup';
+    const title = date.toLocaleDateString(undefined, options) + ' ' + practiceType + ' Practice Signup';
     return title;
 }
 
@@ -60,6 +60,6 @@ function numToMonth(num) {
 }
     
 async function getInviteMessage() {
-    return `<@&${process.env.PADDLER_ROLE_ID}> Unsign-ups for practice are now up. To sign up, use the /unsignup command.`;
-    // return `<@&${process.env.PADDLER_ROLE_ID}> Sign-ups for practice are now up. To sign up, use the /signup command.`;
+    // return `<@&${process.env.PADDLER_ROLE_ID}> Unsign-ups for practice are now up. To sign up, use the /unsignup command.`;
+    return `<Sign-ups for practice are now up. To sign up, use the /signup command.`;
 }
