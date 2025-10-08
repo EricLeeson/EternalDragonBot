@@ -15,6 +15,7 @@
     "discord.js": "^14.13.0",
     "dotenv": "^16.3.1",
     "googleapis": "^105.0.0",
+    "module-alias": "^2.2.3",
     "node-cron": "^3.0.2"
   },
   "devDependencies": {

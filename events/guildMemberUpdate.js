@@ -21,7 +21,9 @@ module.exports = {
                     const channel = await newMember.guild.channels.fetch(process.env.THREADS_CHANNEL_ID);
                     const threadName = oldMember.user.username;
                     const threadCollection = await channel.threads.fetchActive();
-                    const thread = threadCollection.threads.find(x => x.name === threadName);
+                    const thread =
+                        threadCollection.threads.find(x => x.name === oldMember.nickname) ||
+                        threadCollection.threads.find(x => x.name === oldMember.user.username);
                     await thread.edit({name : newMember.nickname});
                     googleSheets.createNewNameRow(newMember.nickname);
                 }

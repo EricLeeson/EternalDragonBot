@@ -206,11 +206,12 @@ async function createNewAttendanceColumn(eventMonth, eventDate, practiceType) {
 
     const sampleIndex = getSampleIndex(data);
     const totalIndex = getTotalIndex(data);
+    console.log(totalIndex)
     const emptyRowIndex = data.length;
     const emptyColumnIndex = data[sampleIndex].length;
 
     const source = getGridRange(sheetId, sampleIndex, sampleIndex + 1, 2, 3);
-    const destination = getGridRange(sheetId, 4, sampleIndex + 1, emptyColumnIndex, emptyColumnIndex + 1);
+    const destination = getGridRange(sheetId, sampleIndex, emptyRowIndex, emptyColumnIndex, emptyColumnIndex + 1);
 
     const requests = [];
     const copyPasteRequest = getCopyPasteRequest(source, destination);

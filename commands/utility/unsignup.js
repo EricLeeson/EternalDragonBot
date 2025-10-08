@@ -1,15 +1,15 @@
 const { Routes, SlashCommandBuilder } = require('discord.js');
-const googleSheets = require('/Users/ericj/Documents/Co-opPrep/JavaScript/googleSheets.js');
+const googleSheets = require('../../googleSheets.js');
 
 module.exports = {
     cooldown: 30,
     data : new SlashCommandBuilder()
         .setName('unsignup')
         .setDescription('Unsigns you for a practice.')
-        .addStringOption(option =>
-            option.setName('reason')
-                .setDescription('Reason for absence')
-                .setRequired(true))
+        // .addStringOption(option =>
+        //     option.setName('reason')
+        //         .setDescription('Reason for absence')
+        //         .setRequired(true))
         ,
     async execute(interaction) {
         const title = interaction.channel.name;
@@ -25,8 +25,8 @@ module.exports = {
 
                 const reason = interaction.options.getString('reason');
     
-                await interaction.reply(`${interaction.member} unsigned from practice. Reason: "${reason}".\n**Current paddler count**: ${count}`);
-                // await interaction.reply(`${interaction.member} unsigned from practice.\n**Current paddler count**: ${count}`);
+                // await interaction.reply(`${interaction.member} unsigned from practice. Reason: "${reason}".\n**Current paddler count**: ${count}`);
+                await interaction.reply(`${interaction.member} unsigned from practice.\n**Current paddler count**: ${count}`);
 
             }
         }
