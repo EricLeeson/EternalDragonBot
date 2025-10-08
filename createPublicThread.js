@@ -61,5 +61,5 @@ function numToMonth(num) {
     
 async function getInviteMessage() {
     // return `<@&${process.env.PADDLER_ROLE_ID}> Unsign-ups for practice are now up. To sign up, use the /unsignup command.`;
-    return `<Sign-ups for practice are now up. To sign up, use the /signup command.`;
+    return `<@&${process.env.PADDLER_ROLE_ID}>Sign-ups for practice are now up. To sign up, use the /signup command.`;
 }
